@@ -1,0 +1,8 @@
+*.o
+*.tmp
+*.bak
+*.sav
+*.swp
+*.swo
+*.a
+bsearch
