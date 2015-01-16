@@ -12,8 +12,12 @@
  *     symbol table implementation, the search is fast, even for huge strings.
  */
 
+#include <stdio.h>
+#include <item.h>
+
 #define null(A) (eq(key(A), key(NULLitem)))
 
+static uint maxN;
 static char text[maxN];
 
 main(int argc, char *argv[])

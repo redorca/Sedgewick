@@ -10,9 +10,9 @@
  *     to the new node inserted.
  */
 
+#include <item.h>
 
-
-void STinsert(Item item)
+void STinsert(Item_t *item)
 {
 	Key v = key(item);
 	link p = head, x = p;

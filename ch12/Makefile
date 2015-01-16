@@ -4,10 +4,10 @@
 
 PROGS = bnr
 bnr_SRCS = bsearch.c
-SRCS  = $(bnr_SRCS)
+SRCS  = tree.c item.c
 OBJS  = $(SRCS:%.c=%.o)
 
-all: $(PROGS)
+all: $(OBJS)
 
 $(OBJS): %.o:%.c
 
