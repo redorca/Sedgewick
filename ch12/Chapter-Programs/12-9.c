@@ -10,12 +10,16 @@
  *     to the new node inserted.
  */
 
-#include <item.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <sys/types.h>
+#include "item.h"
+#include "stuff.h"
 
 void STinsert(Item_t *item)
 {
-	Key v = key(item);
-	link p = head, x = p;
+	Key_t v = key(item);
+	link *p = head, *x = p;
 
 	if (head == NULL) {
 		head = NEW(item, NULL, NULL, 1);
@@ -25,10 +29,10 @@ void STinsert(Item_t *item)
 	while (x != NULL) {
 		p = x;
 		x->N++;
-		x = less(v, key(x->item)) ? x->l : x->;
+		x = less(v, key(x->item)) ? x->l : x->r;
 	}
 
-	x = NEW(item, NULL, NULL,, 1);
+	x = NEW(item, NULL, NULL, 1);
 	if (less(v, key(p->item))) {
 		p->l = x;
 	} else {

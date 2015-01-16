@@ -13,6 +13,8 @@ typedef struct Item_s {
 	char key[16];
 } Item_t;
 
+typedef int32_t Key_t;
+
 Item_t * keyInit(int val, char *key);
 
 #endif

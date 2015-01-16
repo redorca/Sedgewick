@@ -8,20 +8,15 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <sys/types.h>
+
 #include "item.h"
+#include "stuff.h"
 
-typedef struct STnode_s link
-struct STnode_s {
-		item_t *item;
-		link *l;
-		link *r
-		int N;
-};
-
-static link *head, *z;
 
 link
-NEW(item_t *item, link *l,  link *r, int N)
+NEW(Item_t *item, link *l,  link *r, int N)
 {
 	link *x = malloc(sizeof(*x));
 	if (x) {

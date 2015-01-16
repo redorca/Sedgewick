@@ -13,6 +13,10 @@
  * standard sort routine
  */
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <sys/types.h>
+
 Item *
 search(int l, int r, Key_t *v)
 {
