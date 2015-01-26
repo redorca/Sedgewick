@@ -1,5 +1,5 @@
 /*
- * Solution to problem 12.32 on page 496 of Sedgewich 5ed.
+ *
  */
 
 #include <stdio.h>
@@ -11,14 +11,21 @@
 #include "item.h"
 #include "tree.h"
 
+/*
+ * tree_create()
+ *
+ *     Provide a BST filled with unique random values
+ *     based either on a seed value provided or on the
+ *     number of microseconds since the last second
+ *     of the current time (seed = 0).
+ */
 int
-BSTree_create(struct node_s *tree, size_t size, uint seed)
+tree_create(struct node_s **tree, size_t size, uint seed)
 {
 	int i, count, modval, bitgap;
 	long int val;
 	struct timeval tv;
 	uint8_t *map;
-
 
 	if (tree == NULL) {
 		printf("No tree pointer passed in.\b");
@@ -40,7 +47,7 @@ BSTree_create(struct node_s *tree, size_t size, uint seed)
 	 * a tree of unique values is easier.
 	 */
 	modval = size * 10;
-	/* Size the bitmap */
+	/* Size the bitmap by byte/bits */
 	bitgap = modval >> 8;
 	map = malloc(bitgap);
 	if (!map) {
@@ -49,10 +56,11 @@ BSTree_create(struct node_s *tree, size_t size, uint seed)
 	}
 	bzero(map, bitgap);
 
-	tree = (struct node_s *) malloc(sizeof(struct node_s) * size);
-	if (tree) {
+	*tree = (struct node_s *) malloc(sizeof(struct node_s) * size);
+	if (*tree == NULL) {
+		free(map);
 		printf("Unable to allocate a search tree.\n");
-		exit -1;
+		return -1;
 	}
 
 	srandom(seed);
@@ -63,8 +71,13 @@ BSTree_create(struct node_s *tree, size_t size, uint seed)
 			i--;
 			continue;
 		}
-		tree[i].item.val = val;
+		(*tree)->item.val = val;
+		(*tree)++;
 		SET(val);
 	}
+
+	free(map);
+
+	return 0;
 }
 

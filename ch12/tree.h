@@ -5,6 +5,7 @@
 #define __TREE_H__
 
 struct node_s {
+	uint32_t count;
 	struct node_s *right;
 	struct node_s *left;
 	struct Item_s item;

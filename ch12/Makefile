@@ -2,6 +2,7 @@
 #
 #
 
+CFLAGS = -Wall -Werror
 PROGS = bnr
 bnr_SRCS = bsearch.c
 SRCS  = tree.c item.c
