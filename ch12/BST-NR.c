@@ -111,3 +111,69 @@ STselect(link *h, int k)
 	return h->item;
 }
 
+/*
+ * Problem 12.78
+ * 
+ * Implement a non-recursive BST delete function (see Program 12.15).
+ */
+
+link *
+delete(link *h, Key v)
+{
+	link *x;
+	Key t = key(h->item);
+
+	if (h == z) return z;
+
+	while(h != z) {
+		if (less(v, t)) {
+			h = h->l;
+		}
+		if (less(t, v)) {
+			h = h->r;
+		}
+		if (eq(v, t)) {
+			x = h;
+			h = joinR(h->l, h->r);
+			free(x);
+			break;
+		}
+		t = key(h->item);
+	}
+
+	return h;
+}
+
+/*
+ * Problem 12.79
+ *
+ * Implement a version of delete for BSTs (Prrogram 12.15) that deletes
+ * ALL  nodes in the tree that have keys equal to the given key.
+ */
+
+link *
+delete(link *h, Key v)
+{
+	link *x;
+	Key t = key(h->item);
+
+	if (h == z) return z;
+
+	while(h != z) {
+		if (less(v, t)) {
+			h = h->l;
+		}
+		if (less(t, v)) {
+			h = h->r;
+		}
+		if (eq(v, t)) {
+			x = h;
+			h = joinR(h->l, h->r);
+			free(x);
+		}
+		t = key(h->item);
+	}
+
+	return h;
+}
+
