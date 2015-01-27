@@ -15,6 +15,7 @@ typedef struct Item_s {
 
 typedef int32_t Key_t;
 
+int key(Item_t *item);
 Item_t * keyInit(int val, char *key);
 
 #endif

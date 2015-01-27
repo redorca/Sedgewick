@@ -8,8 +8,45 @@
 #include <strings.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <getopt.h>
 #include "item.h"
 #include "tree.h"
+
+/*
+ * Driver to exercise search solutions, such as BSTs, using a well known interface
+ * defined by Program 12.1 on up.
+ */
+
+char options[] = "z:"; 
+void *trees[5];
+int
+main(int argc, char *argv[])
+{
+	unsigned int myopt, size = 0;
+
+	while ((myopt = getopt(argc, argv, options)) != -1) {
+		switch(myopt) {
+		case 'z':
+			size = strtoul(optarg, NULL, 0);
+			break;
+		default:
+			printf("Error:  No such option supported (%c)\n", myopt);
+			exit(-1);
+			break;
+		}
+	}
+
+	if (size == 0) {
+		printf("No size specified.\n");
+		exit(-1);
+	}
+
+	trees[0] = STinit(size);
+
+	STclear(trees[0]);
+
+	exit(0);
+}
 
 /*
  * tree_create()

@@ -19,15 +19,19 @@ struct table_s {
 	unsigned int index, maxN, N;
 };
 
+/* Keep track of how big the tables table is. */
+static unsigned int table_cnt = 0;
+
 static struct table_s **tables;
 
 struct table_s *
 table_init(unsigned int size)
 {
-	uint32_t bytes;
+	uint32_t bytes = 0;
 	struct table_s *tbl;
 
-	tbl = malloc(sizeof(struct table_s) * size);
+	bytes = sizeof(struct table_s) * size;
+	tbl = malloc(bytes);
 	if (!tbl) {
 		return NULL;
 	}
@@ -81,33 +85,63 @@ table_free(struct table_s *tbl)
 	tbl->N = 0;
 }
 
-struct table_s **
-STinit(unsigned int count, unsigned int size)
+/*
+ * STinit(unsigned int)
+ *
+ *     Create a new table/tree, adding it to the set
+ *     already in known.
+ */
+struct table_s *
+STinit(unsigned int size)
 {
-	int i, j;
+	int table_sz;
 
-	tables = malloc(sizeof(struct  table_s) * count);
+	table_sz = sizeof(struct table_s);
+	tables = realloc(tables, (table_cnt + 1) * table_sz);
 	if (!tables) {
 		return NULL;
 	}
+	tables[table_cnt] = table_init(size);
 
-	for (i = 0; i < count; i++) {
-		tables[i] = table_init(size);
-		if (j < 0) {
-			for (j = 0; j < 1; j++) {
-				table_free(tables[j]);
-			}
-			j = -1;
+	if (tables[table_cnt] == NULL) {
+		table_free(tables[table_cnt]);
+	}
+	table_cnt++;
+
+	return tables[table_cnt - 1];
+}
+
+/*
+ * STclear(struct table_s *)
+ *
+ *     Remove a tree from the table, free it, and move
+ *     the rest of the entries down by 1;
+ */
+void
+STclear(struct table_s *tbl)
+{
+	int i;
+
+	/* Find the table. If there isn't one then we're done. */
+	for (i = 0; i < table_cnt; i++) {
+		if (tables[i] == tbl) {
 			break;
 		}
 	}
 
-	if (j < 0) {
-		free(tables);
-		return  NULL;
-	}
+	if (i != table_cnt) {
+		table_free(tables[i]);
 
-	return tables;
+		/*
+		 * Decrement the table_cnt here so that the for loop will
+		 * conclude just short of the end since there is now headroom
+		 */
+		table_cnt--;
+		for (; i < table_cnt; i++) {
+			tables[i] = tables[i + 1];
+		}
+		tables = realloc(tables, table_cnt * sizeof(struct table_s));
+	}
 }
 
 Item_t *
@@ -138,9 +172,8 @@ insert(struct table_s *tbl, int ndex, Item_t *item)
 {
 	Key_t v = key(item);
 	Key_t t = key(tbl->items[ndex]);
-	int xval;
 
-	if (tbl->N = tbl->maxN) {
+	if (tbl->N == tbl->maxN) {
 		return 0;
 	}
 
@@ -159,12 +192,14 @@ insert(struct table_s *tbl, int ndex, Item_t *item)
 	return ndex;
 }
 
-void
+int
 STinsert(struct table_s *tbl, Item_t *item)
 {
 	int link;
 
 	link = insert(tbl, 0, item);
+
+	return link;
 }
 
 int

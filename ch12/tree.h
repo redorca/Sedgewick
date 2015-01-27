@@ -11,7 +11,11 @@ struct node_s {
 	struct Item_s item;
 };
 
-int BSTreeInit(struct node_s **tree, size_t size, uint seed);
+int STcount(void *tbl);
+int STinsert(void *tbl, Item_t *item);
+Item_t *STsearch(void *tbl, Key_t key);
+void STclear(void *tbl);
+void *STinit(unsigned int size);
 
 
 #define	ISSET(a)	(map[a >> 8] & (1 << (a % 8)))
