@@ -12,6 +12,10 @@
 int
 key(Item_t *item)
 {
+	if (item == NULL) {
+		return -1;
+	}
+
 	return item->val;
 }
 
