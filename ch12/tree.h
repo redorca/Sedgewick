@@ -11,11 +11,12 @@ struct node_s {
 	struct Item_s item;
 };
 
-int STcount(void *tbl);
-int STinsert(void *tbl, Item_t *item);
-Item_t *STsearch(void *tbl, Key_t key);
-void STclear(void *tbl);
-void *STinit(unsigned int size);
+int STcount(int tbl);
+int STinsert(int tbl, Item_t *item);
+Item_t *STsearch(int tbl, Key_t key);
+void STclear(int tbl);
+int STinit(int size);
+int STprint(int tbl);
 
 
 #define	ISSET(a)	(map[a >> 8] & (1 << (a % 8)))
