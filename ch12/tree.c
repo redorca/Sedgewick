@@ -18,11 +18,13 @@
  */
 
 char options[] = "z:"; 
-void *trees[5];
+int trees[5];
 int
 main(int argc, char *argv[])
 {
 	unsigned int myopt, size = 0;
+	unsigned int i, j;
+	Item_t *items[3];
 
 	while ((myopt = getopt(argc, argv, options)) != -1) {
 		switch(myopt) {
@@ -41,8 +43,20 @@ main(int argc, char *argv[])
 		exit(-1);
 	}
 
-	trees[0] = STinit(size);
+	i = 0;
+	for (i = 0; i < size; i++) {
+		trees[i] = STinit(size);
+	}
 
+	for (j = 0; j < 3; j++) {
+		items[j] = malloc(sizeof(Item_t));
+		items[j]->val = j + 1;
+	}
+
+	STinsert(trees[0], items[0]);
+	STinsert(trees[0], items[1]);
+	STinsert(trees[0], items[2]);
+	STprint(trees[0]);
 	STclear(trees[0]);
 
 	exit(0);
