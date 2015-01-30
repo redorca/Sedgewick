@@ -2,7 +2,7 @@
 #
 #
 
-CFLAGS = -Wall -Werror
+CFLAGS = -Wall -Werror -g
 PROGS = bnr
 HEADERS = item.h tree.h
 bnr_SRCS = bsearch.c
