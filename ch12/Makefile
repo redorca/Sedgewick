@@ -2,9 +2,10 @@
 #
 #
 
-CFLAGS = -Wall -Werror -g
+INCLUDES = -I../includes
+CFLAGS = -Wall -Werror -g $(INCLUDES)
 PROGS = bnr
-HEADERS = item.h tree.h
+HEADERS = 
 bnr_SRCS = bsearch.c
 SRCS  = tree.c item.c
 OBJS  = $(SRCS:%.c=%.o)
