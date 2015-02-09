@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
-#include "../item.h"
+#include "item.h"
 
 struct table_s {
 	unsigned int *keys, *left, *right;
