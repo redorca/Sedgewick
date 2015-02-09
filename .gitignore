@@ -5,9 +5,12 @@
 *.swp
 *.swo
 *.a
+*.so
+
 bsearch
 pr[0-9][0-9]
 primes
+stkchk
 aa
 bb
 cc
