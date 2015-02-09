@@ -71,7 +71,7 @@ main(int argc, char *argv[])
  *     of the current time (seed = 0).
  */
 int
-tree_create(struct node_s **tree, size_t size, uint seed)
+tree_create(struct node_s **tree, size_t size, uint64_t seed)
 {
 	int i, count, modval, bitgap;
 	long int val;
