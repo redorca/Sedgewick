@@ -8,9 +8,11 @@
  *     Exercise 12.22.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
 #include "../item.h"
 
 struct table_s {
@@ -23,9 +25,24 @@ struct table_s {
 static unsigned int table_cnt = 0;
 
 static struct table_s **tables;
+int
+index_check(int tblindex)
+{
+
+	if (tblindex >= table_cnt) {
+		printf("=== tblindex is too great: %d :: %d\n", tblindex, table_cnt);
+		return -1;
+	}
+	if (tables[tblindex] == NULL) {
+		printf("=== There is no table for table %d.\n", tblindex);
+		return -1;
+	}
+
+	return 0;
+}
 
 struct table_s *
-table_init(unsigned int size)
+table_init(int size)
 {
 	uint32_t bytes = 0;
 	struct table_s *tbl;
@@ -91,7 +108,7 @@ table_free(struct table_s *tbl)
  *     Create a new table/tree, adding it to the set
  *     already in known.
  */
-struct table_s *
+int
 STinit(unsigned int size)
 {
 	int table_sz;
@@ -99,16 +116,18 @@ STinit(unsigned int size)
 	table_sz = sizeof(struct table_s);
 	tables = realloc(tables, (table_cnt + 1) * table_sz);
 	if (!tables) {
-		return NULL;
+		printf("=== No tables allocated.\n");
+		return -1;
 	}
 	tables[table_cnt] = table_init(size);
 
 	if (tables[table_cnt] == NULL) {
+		printf("Failed to init a table.\n");
 		table_free(tables[table_cnt]);
 	}
 	table_cnt++;
 
-	return tables[table_cnt - 1];
+	return table_cnt - 1;
 }
 
 /*
@@ -118,30 +137,21 @@ STinit(unsigned int size)
  *     the rest of the entries down by 1;
  */
 void
-STclear(struct table_s *tbl)
+STclear(int tblindex)
 {
 	int i;
 
-	/* Find the table. If there isn't one then we're done. */
-	for (i = 0; i < table_cnt; i++) {
-		if (tables[i] == tbl) {
-			break;
-		}
+	if (index_check(tblindex) < 0) {
+		return;
 	}
 
-	if (i != table_cnt) {
-		table_free(tables[i]);
+	table_free(tables[tblindex]);
 
-		/*
-		 * Decrement the table_cnt here so that the for loop will
-		 * conclude just short of the end since there is now headroom
-		 */
-		table_cnt--;
-		for (; i < table_cnt; i++) {
-			tables[i] = tables[i + 1];
-		}
-		tables = realloc(tables, table_cnt * sizeof(struct table_s));
+	table_cnt--;
+	for (i = tblindex; i < table_cnt; i++) {
+		tables[i] = tables[i + 1];
 	}
+	tables = realloc(tables, table_cnt * sizeof(struct table_s));
 }
 
 Item_t *
@@ -162,49 +172,124 @@ search(struct table_s *tbl, int ndex, Key_t kval)
 }
 
 Item_t *
-STsearch(struct table_s *tbl, Key_t key)
+STsearch(int tblindex, Key_t key)
 {
-	return search(tbl, 0, key);
+	if (index_check(tblindex) < 0) {
+		return  NULL;
+	}
+
+	return search(tables[tblindex], 0, key);
 }
 
 int
-insert(struct table_s *tbl, int ndex, Item_t *item)
+insert(struct  table_s *tbl, int ndex, Item_t *item)
 {
 	Key_t v = key(item);
-	Key_t t = key(tbl->items[ndex]);
+	Key_t t;
 
-	if (tbl->N == tbl->maxN) {
-		return 0;
+	if (tbl->N >= tbl->maxN) {
+		printf("=== Index too large: %d versus %d\n", tbl->N, tbl->maxN);
+		return -1;
 	}
 
-	if (ndex == 0) {
+	if (tbl->items[ndex] == 0) {
 		tbl->items[tbl->N] = item;
+		printf("=== %d Insert %p into tbl->items[tbl->N]%p\n", tbl->N, item, tbl->items[tbl->N]);
 		tbl->N++;
+		sleep(2);
 		return tbl->N;
 	}
 
+	t = key(tbl->items[ndex]);
+
 	if (v < t) {
-		tbl->left[ndex] = insert(tbl, tbl->left[ndex], item);
+		int cha;
+
+printf("=== A::a %d\n", ndex);
+return ndex;
+		cha = insert(tbl, tbl->left[ndex], item);
+		tbl->left[ndex] = cha;
+		printf("=== cha %d, tbl->left[%d] %d\n", cha, ndex, tbl->left[ndex]);
 	} else if (t < v) {
-		tbl->right[ndex] = insert(tbl, tbl->right[ndex], item);
+		int cha;
+
+printf("=== A::b %d\n", ndex);
+printf("=== tbl->N %d, tbl->items[0] %p\n", tbl->N, tbl->items[0]);
+		sleep(2);
+		if (tbl->right[ndex] == 0) {
+			ndex = tbl->N;
+			tbl->right[ndex] = tbl->N;
+		}
+		cha = insert(tbl, tbl->right[ndex], item);
+		tbl->right[ndex] = cha;
+		printf("=== cha %d, tbl->left[%d] %d\n", cha, ndex, tbl->right[ndex]);
+	} else {
+		printf("=== Keys are equal.\n");
 	}
 
+printf("=== A::c\n");
 	return ndex;
 }
 
 int
-STinsert(struct table_s *tbl, Item_t *item)
+STinsert(unsigned int  tblindex, Item_t *item)
 {
 	int link;
 
-	link = insert(tbl, 0, item);
+	if (index_check(tblindex) < 0) {
+		return -1;
+	}
 
+	link = insert(tables[tblindex], 0, item);
+
+	printf("======= Inserted @ %d into table %d\n", link, tblindex);
 	return link;
 }
 
 int
-STcount(struct table_s *tbl)
+STcount(int tblindex)
 {
-	return tbl->N;
+
+	if (index_check(tblindex) < 0) {
+		return -1;
+	}
+
+	return tables[tblindex]->N;
+}
+
+int
+STprint(int tblindex)
+{
+	int i, j;
+	struct table_s *tbl;
+
+	printf("=== tblindex %d\n", tblindex);
+	if (index_check(tblindex) < 0) {
+		return -1;
+	}
+
+	tbl = tables[tblindex];
+
+	for (i = 0; i < tbl->N; i++) {
+		printf("=== Left ::");
+		for (j = 0; j < 16 && j < tbl->N; j++) {
+			if (i + j >= tbl->N) {
+				break;
+			}
+			printf("\t(%d) %d", j, tbl->left[j]);
+		}
+		printf("\n");
+		printf("=== Right ::");
+		for (j = 0; j < 16 && j < tbl->N; j++) {
+			if (i + j >= tbl->N) {
+				break;
+			}
+			printf("\t(%d) %d", j, tbl->right[j]);
+		}
+		printf("\n\n");
+		i += j;
+	}
+
+	return 0;
 }
 
