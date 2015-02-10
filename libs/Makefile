@@ -1,15 +1,16 @@
 
 
-FILES = stack.c
+FILES = stack.c item.c
 OBJS = ${FILES:%.c=%.o}
-LIBS = libstack.so
+LIBS = libstack.so libitem.so
 CFLAGS = -m64 -fPIC -std=c99 -I../includes
 LDFLAGS = -shared
 
 all: $(LIBS)
 
-$(LIBS): $(OBJS)
-	$(CC) -o $@ $(LDFLAGS) $(OBJS)
+# $(LIBS): $(OBJS)
+$(LIBS): lib%.so:%.o
+	$(CC) -o $@ $(LDFLAGS) $^
 
 clean:
 	$(RM) $(LIBS)
