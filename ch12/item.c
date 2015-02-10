@@ -37,3 +37,10 @@ keyInit(int val, char *key)
 	return item;
 }
 
+void
+keyRelease(Item_t *item)
+{
+	if (item) {
+		free(item);
+	}
+}
