@@ -1,16 +1,18 @@
 
 
-FILES = stack.c item.c
+FILES = stack.c item.c random.c
 OBJS = ${FILES:%.c=%.o}
-LIBS = libstack.so libitem.so
-CFLAGS = -m64 -fPIC -std=c99 -I../includes
+LIBS = libstack.so libitem.so librandom.so
+CFLAGS = -m64 -fPIC -std=gnu99 -I../includes
 LDFLAGS = -shared
+HEADERS = $(FILES:%.c=%.h)
+INC_PATHS = ../includes
 
 all: $(LIBS)
 
-# $(LIBS): $(OBJS)
+$(LIBS): lib%.so:$(INC_PATHS)/%.h
 $(LIBS): lib%.so:%.o
-	$(CC) -o $@ $(LDFLAGS) $^
+	$(CC) -o $@ $(LDFLAGS) $(@:lib%.so=%.o)
 
 clean:
 	$(RM) $(LIBS)
