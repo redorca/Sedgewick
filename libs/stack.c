@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <signal.h>
+#include <stack.h>
 
 #define STACKS_COUNT 16
 
@@ -15,8 +17,15 @@ typedef struct stack_s {
 	uint8_t length;
 } stack_t;
 
+typedef struct list_stack_s {
+	struct  list_stack_s *next;
+	uint64_t value;
+} list_stack_t;
+
 static uint8_t stk_index = 0;
+static uint8_t lstk_index = 0;
 static stack_t *stk_table[STACKS_COUNT];
+static list_stack_t *lstack_table[STACKS_COUNT];
 
 int8_t
 stk_init(uint32_t deep)
@@ -54,7 +63,7 @@ stk_release(int8_t ident)
 }
 
 int
-push(int8_t ident, uint64_t entry)
+stk_push(int8_t ident, uint64_t entry)
 {
 	stack_t *stk;
 
@@ -63,6 +72,8 @@ push(int8_t ident, uint64_t entry)
 	}
 	stk = stk_table[ident];
 	if (!(stk->depth < stk->length)) {
+		fprintf(stderr, "Pushing onto a full stack.\n");
+		raise(SIGSTKFLT);
 		return -1;
 	}
 	stk = stk_table[ident];
@@ -73,7 +84,7 @@ push(int8_t ident, uint64_t entry)
 }
 
 uint64_t
-pop(int8_t ident)
+stk_pop(int8_t ident)
 {
 	stack_t *stk;
 	uint64_t entry;
@@ -86,13 +97,13 @@ pop(int8_t ident)
 }
 
 bool
-empty(int8_t ident)
+stk_empty(int8_t ident)
 {
 	return (stk_table[ident]->depth == 0);
 }
 
 void
-xamine(int8_t ident)
+stk_examine(int8_t ident)
 {
 	int i;
 	stack_t *stk;
@@ -104,5 +115,82 @@ xamine(int8_t ident)
 		printf("=== stk entry %d :: %ld\n", i, stk->entries[i]);
 	}
 
+}
+
+int8_t
+lstk_init(uint32_t dummy)
+{
+	uint64_t cur_index = lstk_index;
+
+	if (!(lstk_index < STACKS_COUNT)) {
+		return -1;
+	}
+	lstack_table[cur_index] = malloc(sizeof(list_stack_t));
+	if (!lstack_table[cur_index]) {
+		return -1;
+	}
+	lstack_table[cur_index]->next = NULL;
+	lstk_index++;
+
+	return cur_index;
+}
+
+int
+lpush(int8_t index, uint64_t value)
+{
+	list_stack_t *stk, *tmp;
+
+	stk = lstack_table[index];
+	tmp = malloc(sizeof(list_stack_t));
+	if (!tmp) {
+		return -1;
+	}
+	tmp->value = value;
+
+	tmp->next = stk->next;
+	stk->next = tmp;
+
+	return 0;
+}
+
+uint64_t
+lpop(int8_t index)
+{
+	list_stack_t *tmp, *head;
+	uint64_t val;
+
+	head = lstack_table[index];
+	tmp = head->next;
+	head->next = head->next->next;
+	val = tmp->value;
+
+	free(tmp);
+
+	return val;
+}
+
+bool
+lempty(int8_t index)
+{
+	list_stack_t *head;
+
+	head = lstack_table[index];
+
+	return (head->next == NULL);
+}
+
+void
+lexamine(int8_t index)
+{
+	list_stack_t *head;
+
+	printf("Examine stack list %d\n", index);
+
+	head = lstack_table[index];
+	head = head->next;
+	while (head) {
+		printf("=== %d\n", head->value);
+		head = head->next;
+	}
 }
 
